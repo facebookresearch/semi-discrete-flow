@@ -1,0 +1,55 @@
+defaults:
+  - override hydra/launcher: submitit_slurm
+
+seed: 0
+
+n_mixtures: 8
+cond_embed_dim: 4
+
+dataset: 8gaussians  #{8gaussians,swissroll,circles,rings,moons,pinwheel,2spirals,checkerboard}
+
+block_type: coupling
+idim: 64
+depth: 4
+actnorm: True
+zero_init: False
+lazy_init: True
+skip_transform: False
+prior_std: 0.2
+
+# block type specific defaults.
+cnf:
+  nblocks: [4]
+  actfn: softplus
+  fast_adjoint: False
+
+resflow:
+  nblocks: [8]
+  sn_coeff: 0.98
+
+coupling:
+  nblocks: [8, 8]
+  actfn: relu
+  mixlogcdf: False
+  num_mixtures: 8
+
+iterations: 20000
+batchsize: 64
+lr: 1e-3
+
+logfreq: 200
+vizfreq: 2000
+
+hydra:
+  run:
+    dir: ./exp_local/disjoint2d/${dataset}/${block_type}/${now:%Y.%m.%d}/${now:%H%M%S}
+  sweep:
+    dir: ./exp/disjoint2d/${dataset}/${block_type}/${now:%Y.%m.%d}/${now:%H%M%S}
+    subdir: ${hydra.job.num}
+  launcher:
+    max_num_timeout: 100000
+    timeout_min: 4319
+    partition: learnfair
+    mem_gb: 16
+    cpus_per_task: 10
+    gpus_per_node: 1

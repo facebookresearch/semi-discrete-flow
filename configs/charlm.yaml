@@ -1,0 +1,165 @@
+defaults:
+  - override hydra/launcher: submitit_slurm
+
+seed: 0
+
+dataset: text8
+model: ar
+dequantization: voronoi  # {voronoi, argmax}
+embedding_dim: 5
+logfreq: 20
+
+# The rest are fixed. These arguments are taken from argmax flows and are dependent.
+
+text8:
+  ar:
+    dataset: ${dataset}
+    model: ${model}
+    num_steps: 1
+    actnorm: False
+    perm_channel: none
+    perm_length: reverse
+    base_dist: conv_gauss
+    encoder_steps: 0
+    encoder_bins: 5
+    context_size: 128
+    context_lstm_layers: 1
+    context_lstm_size: 512
+    lstm_layers: 2
+    lstm_size: 2048
+    lstm_dropout: 0.0
+    input_dp_rate: 0.25
+
+    epochs: 40
+    disable_ema_epochs: 20
+    batch_size: 64
+    test_batch_size: 256
+    eval_every: 1
+    check_every: 10
+
+    optimizer: adam
+    lr: 1e-3
+    warmup: 0
+    momentum: 0.9
+    momentum_sqr: 0.999
+    gamma: 0.995
+    num_mixtures: 27
+
+  coupling:
+    dataset: ${dataset}
+    model: ${model}
+    num_steps: 8
+    actnorm: False
+    perm_channel: conv
+    perm_length: reverse
+    base_dist: conv_gauss
+    encoder_steps: 0
+    encoder_bins: 0
+    encoder_ff_size: 1024
+    context_size: 128
+    context_ff_layers: 1
+    context_ff_size: 512
+    context_dropout: 0.0
+    lstm_layers: 2
+    lstm_size: 512
+    lstm_dropout: 0.0
+    input_dp_rate: 0.05
+
+    epochs: 40
+    disable_ema_epochs: 20
+    batch_size: 16
+    test_batch_size: 256
+    eval_every: 1
+    check_every: 1
+
+    optimizer: adamax
+    lr: 1e-3
+    warmup: 1000
+    momentum: 0.9
+    momentum_sqr: 0.999
+    gamma: 0.995
+    num_mixtures: 8
+
+enwik8:
+  ar:
+    dataset: ${dataset}
+    model: ${model}
+    num_steps: 1
+    actnorm: False
+    perm_channel: none
+    perm_length: reverse
+    base_dist: conv_gauss
+    encoder_steps: 0
+    encoder_bins: 5
+    context_size: 128
+    context_lstm_layers: 1
+    context_lstm_size: 512
+    lstm_layers: 2
+    lstm_size: 2048
+    lstm_dropout: 0.0
+    input_dp_rate: 0.25
+
+    epochs: 40
+    disable_ema_epochs: 20
+    batch_size: 64
+    test_batch_size: 256
+    eval_every: 1
+    check_every: 10
+
+    optimizer: adam
+    lr: 1e-3
+    warmup: 0
+    momentum: 0.9
+    momentum_sqr: 0.999
+    gamma: 0.995
+    num_mixtures: 27
+
+  coupling:
+    dataset: ${dataset}
+    model: ${model}
+    num_steps: 8
+    actnorm: False
+    perm_channel: conv
+    perm_length: reverse
+    base_dist: conv_gauss
+    encoder_steps: 0
+    encoder_bins: 0
+    encoder_ff_size: 1024
+    context_size: 128
+    context_ff_layers: 1
+    context_ff_size: 512
+    context_dropout: 0.0
+    lstm_layers: 2
+    lstm_size: 768
+    lstm_dropout: 0.0
+    input_dp_rate: 0.1
+
+    epochs: 20
+    disable_ema_epochs: 10
+    batch_size: 32
+    test_batch_size: 256
+    eval_every: 1
+    check_every: 1
+
+    optimizer: adamax
+    lr: 1e-3
+    warmup: 1000
+    momentum: 0.9
+    momentum_sqr: 0.999
+    gamma: 0.95
+    num_mixtures: 8
+
+hydra:
+  run:
+    dir: ./exp_local/charlm/${now:%Y.%m.%d}/${now:%H%M%S}
+  sweep:
+    dir: ./exp/charlm/${now:%Y.%m.%d}/${now:%H%M%S}
+    subdir: ${hydra.job.num}
+  launcher:
+    max_num_timeout: 100000
+    timeout_min: 4319
+    partition: learnfair
+    mem_gb: 64
+    cpus_per_task: 10
+    gpus_per_node: 1
+    constraint: volta32gb

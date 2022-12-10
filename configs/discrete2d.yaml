@@ -1,0 +1,48 @@
+defaults:
+  - override hydra/launcher: submitit_slurm
+
+seed: 0
+
+# dataset should be one of {center3, cluster3, diagonal4, cluster10, cross10, diagonal28, diamond28, discrete_8gaussians}
+dataset: discrete_8gaussians
+vardeq: True
+num_flows: 16
+num_dequant_flows: 4
+hdims: [256, 256]
+flatten: False
+dequantization: voronoi
+
+embedding_dim: 2
+actfn: relu
+
+cond_embed_dim: 8
+
+block_transform: affine
+num_mixtures: 32
+
+# base should be one of {gaussian, resampled}
+base: resampled
+resampled:
+  actfn: relu
+  hdims: [256, 256]
+
+iterations: 100000
+batch_size: 200
+test_batch_size: 200
+lr: 1e-3
+
+num_test_samples: 10
+
+
+hydra:
+  run:
+    dir: ./exp_local/discrete2d/${dataset}/${now:%Y.%m.%d}/${now:%H%M%S}
+  sweep:
+    dir: ./exp/discrete2d/${dataset}/${now:%Y.%m.%d}/${now:%H%M%S}
+    subdir: ${hydra.job.num}
+  launcher:
+    max_num_timeout: 100000
+    timeout_min: 1440
+    partition: learnfair
+    mem_gb: 64
+    gpus_per_node: 1

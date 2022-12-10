@@ -1,0 +1,41 @@
+defaults:
+  - override hydra/launcher: submitit_slurm
+
+seed: 0
+n_resumes: 5
+
+dataset: retail  # {retail,accidents}
+model: cnf  # {dpp,cnf,coupling}
+dequantization: voronoi  # {voronoi,argmax,simplex}
+
+embedding_dim: 6
+num_flows: 4
+num_layers: 2
+actfn: gelu
+
+iterations: 10000
+batch_size: 128
+lr: 1e-3
+wd: 1e-6
+
+ema_eval: True
+eval_batch_size: 256
+num_eval_samples: 40
+
+skip_eval: False
+logfreq: 10
+evalfreq: 200
+
+hydra:
+  run:
+    dir: ./exp_local/itemsets/${dataset}/${model}/${dequantization}/${now:%Y.%m.%d}/${now:%H%M%S}
+  sweep:
+    dir: ./exp/itemsets/${dataset}/${model}/${dequantization}/${now:%Y.%m.%d}/${now:%H%M%S}
+    subdir: ${hydra.job.num}
+  launcher:
+    max_num_timeout: 100000
+    timeout_min: 4319
+    partition: learnfair
+    mem_gb: 64
+    cpus_per_task: 10
+    gpus_per_node: 1

@@ -1,0 +1,17 @@
+defaults:
+  - override hydra/launcher: submitit_slurm
+
+seed: 0
+
+hydra:
+  run:
+    dir: ./exp_local/default/${now:%Y.%m.%d}/${now:%H%M%S}
+  sweep:
+    dir: ./exp/default/${now:%Y.%m.%d}/${now:%H%M%S}
+    subdir: ${hydra.job.num}
+  launcher:
+    max_num_timeout: 100000
+    timeout_min: 10
+    partition: learnfair
+    mem_gb: 4
+    gpus_per_node: 1

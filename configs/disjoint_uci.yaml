@@ -1,0 +1,53 @@
+defaults:
+  - override hydra/launcher: submitit_slurm
+
+sweep:
+  n_sample: 75
+
+seed: 0
+
+n_mixtures: 8
+cond_embed_dim: 8
+
+user: ${oc.env:USER}
+dataset: miniboone  #{miniboone,gas,power,hepmass,bsds300}
+
+block_type: coupling
+idim: 64
+depth: 4
+lazy_init: True
+skip_transform: False
+prior_std: 0.2
+zero_init: False
+
+nblocks: [16]
+actfn: relu
+
+iterations: 1000000
+batchsize: 64
+eval_batchsize: 128
+lr: 1e-3
+
+logfreq: 200
+evalfreq: 2000
+
+use_wandb: False
+wandb:
+  save_dir: /checkpoint/${user}/
+  project: "voronoi-disjoint-uci"
+  group: ${dataset}
+  entity: ${user}
+
+hydra:
+  run:
+    dir: ./exp_local/disjoint_uci/${dataset}/${block_type}/${now:%Y.%m.%d}/${now:%H%M%S}
+  sweep:
+    dir: ./exp/disjoint_uci/${dataset}/${block_type}/${now:%Y.%m.%d}/${now:%H%M%S}
+    subdir: ${hydra.job.num}
+  launcher:
+    max_num_timeout: 100000
+    timeout_min: 4319
+    partition: learnfair
+    mem_gb: 16
+    cpus_per_task: 10
+    gpus_per_node: 1

@@ -1,0 +1,8 @@
+__pycache__
+*.pyc
+.DS_Store
+.vscode
+*.png
+*.pdf
+data/*
+*.pt
